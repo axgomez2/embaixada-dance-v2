@@ -614,7 +614,7 @@
                     <li><a href="#" class="text-base font-medium text-sky-600 hover:text-sky-900">Equipamentos</a></li>
                     <li><a href="#" class="text-base font-medium text-sky-600 hover:text-sky-900">Sobre</a></li>
                     <li><a href="#" class="text-base font-medium text-sky-600 hover:text-sky-900">Contato</a></li>
-                    <li><a href="{{ route('site.vinyls.promotions') }}" class="text-base font-medium text-sky-600 hover:text-sky-900">Ofertas</a></li>
+                    <li><a href="{{ route('site.vinyls.offers') }}" class="text-base font-medium text-sky-600 hover:text-sky-900">Ofertas</a></li>
                 </ul>
             </div>
         </div>
@@ -692,7 +692,7 @@
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
               </svg>
             </button>
-            
+
             <!-- Grade de categorias de discos (similar ao mega menu) -->
             <div
               id="dropdown-discos"
@@ -706,16 +706,16 @@
               class="p-3 space-y-3 bg-gray-50 rounded-lg m-2"
             >
               <!-- Link para ver todos os discos -->
-              <a href="{{ route('site.vinyls.index') }}" 
+              <a href="{{ route('site.vinyls.index') }}"
                  class="flex items-center justify-center w-full p-2 text-sky-900 hover:text-white border border-gray-800 hover:bg-gray-900 text-sm font-medium rounded-lg">
                 VER TODOS OS DISCOS
               </a>
-              
+
               <!-- Grade de categorias -->
               <div class="grid grid-cols-1 gap-2 mt-3">
                 @if(isset($categories) && $categories->count())
                   @foreach($categories as $category)
-                    <a href="{{ route('vinyls.byCategory', ['slug' => $category->slug]) }}" 
+                    <a href="{{ route('vinyls.byCategory', ['slug' => $category->slug]) }}"
                        class="flex items-center justify-center p-2 text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 text-sm font-medium rounded-lg">
                       {{ $category->nome }}
                     </a>
@@ -746,7 +746,7 @@
             </a>
           </li>
           <li>
-            <a href="{{ route('site.vinyls.promotions') }}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+            <a href="{{ route('site.vinyls.offers') }}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
               <span class="ml-3">Ofertas</span>
             </a>
           </li>

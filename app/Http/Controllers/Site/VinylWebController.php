@@ -47,7 +47,7 @@ class VinylWebController extends Controller
 
         // Obter categorias de música para filtro
         $categories = CatStyleShop::orderBy('nome')->get();
-        
+
         // Obter gravadoras para filtro
         $recordLabels = DB::table('record_labels')
             ->whereIn('id', function($query) {
@@ -73,11 +73,11 @@ class VinylWebController extends Controller
         $priceRange = VinylSec::selectRaw('MIN(price) as min_price, MAX(price) as max_price')->first();
 
         return view('site.vinyls.index', compact(
-            'vinyls', 
-            'styles', 
-            'priceRange', 
-            'categories', 
-            'recordLabels', 
+            'vinyls',
+            'styles',
+            'priceRange',
+            'categories',
+            'recordLabels',
             'releaseYears'
         ));
     }
@@ -125,6 +125,42 @@ class VinylWebController extends Controller
         return $query;
     }
 
+    private function applyOffersFilters($query, $request)
+    {
+        // Filtro de estilo (style)
+        if ($request->filled('style')) {
+            $query->whereHas('styles', function ($q) use ($request) {
+                $q->where('id', $request->style);
+            });
+        }
+
+        // Filtro de categoria (catstyleshop)
+        if ($request->filled('category')) {
+            $query->whereHas('catStyleShops', function ($q) use ($request) {
+                $q->where('cat_style_shop_id', $request->category);
+            });
+        }
+
+        // Filtro de gravadora (record_label)
+        if ($request->filled('record_label')) {
+            $query->where('record_label_id', $request->record_label);
+        }
+
+        // Filtro de ano de lançamento
+        if ($request->filled('release_year')) {
+            $query->where('release_year', $request->release_year);
+        }
+
+        // Filtro de preço promocional (específico para ofertas)
+        if ($request->filled('min_price') && $request->filled('max_price')) {
+            $query->whereHas('vinylSec', function ($q) use ($request) {
+                $q->whereBetween('promotional_price', [$request->min_price, $request->max_price]);
+            });
+        }
+
+        return $query;
+    }
+
     private function applySorting($query, $request)
     {
         $sortBy = $request->input('sort_by', 'created_at');
@@ -149,15 +185,40 @@ class VinylWebController extends Controller
         return $query;
     }
 
-    public function byCategory(Request $request, $slug)
-{
-    // Busca a categoria pelo slug
-    $category = CatStyleShop::where('slug', $slug)->firstOrFail();
+    private function applyOffersSorting($query, $request)
+    {
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
 
-    // Query base
-    $query = VinylMaster::whereHas('catStyleShops', function($q) use ($slug) {
-        $q->where('slug', $slug);
-    })->with(['vinylSec', 'artists', 'recordLabel', 'catStyleShops']);
+        switch ($sortBy) {
+            case 'price':
+                $query->join('vinyl_secs', 'vinyl_masters.id', '=', 'vinyl_secs.vinyl_master_id')
+                      ->orderBy('vinyl_secs.promotional_price', $sortOrder)
+                      ->select('vinyl_masters.*');
+                break;
+            case 'release_year':
+                $query->orderBy('release_year', $sortOrder);
+                break;
+            case 'title':
+                $query->orderBy('title', $sortOrder);
+                break;
+            default:
+                $query->orderBy('created_at', $sortOrder);
+                break;
+        }
+
+        return $query;
+    }
+
+    public function byCategory(Request $request, $slug)
+    {
+        // Busca a categoria pelo slug
+        $category = CatStyleShop::where('slug', $slug)->firstOrFail();
+
+        // Query base
+        $query = VinylMaster::whereHas('catStyleShops', function($q) use ($slug) {
+            $q->where('slug', $slug);
+        })->with(['vinylSec', 'artists', 'recordLabel', 'catStyleShops']);
 
         // Filtro de disponibilidade (opcional, controlado pelo frontend)
         if ($request->filled('available') && $request->available == 1) {
@@ -168,46 +229,125 @@ class VinylWebController extends Controller
 
         // Aplicar ordenação
         switch ($request->get('sort')) {
-        case 'price_asc':
-            $query->join('vinyl_secs', 'vinyl_masters.id', '=', 'vinyl_secs.vinyl_master_id')
-                  ->orderBy('vinyl_secs.price', 'asc')
-                  ->select('vinyl_masters.*');
-            break;
-        case 'price_desc':
-            $query->join('vinyl_secs', 'vinyl_masters.id', '=', 'vinyl_secs.vinyl_master_id')
-                  ->orderBy('vinyl_secs.price', 'desc')
-                  ->select('vinyl_masters.*');
-            break;
-        case 'artist_asc':
-            $query->join('artist_vinyl_master', 'vinyl_masters.id', '=', 'artist_vinyl_master.vinyl_master_id')
-                  ->join('artists', 'artists.id', '=', 'artist_vinyl_master.artist_id')
-                  ->orderBy('artists.name', 'asc')
-                  ->select('vinyl_masters.*')
-                  ->distinct();
-            break;
-        case 'artist_desc':
-            $query->join('artist_vinyl_master', 'vinyl_masters.id', '=', 'artist_vinyl_master.vinyl_master_id')
-                  ->join('artists', 'artists.id', '=', 'artist_vinyl_master.artist_id')
-                  ->orderBy('artists.name', 'desc')
-                  ->select('vinyl_masters.*')
-                  ->distinct();
-            break;
-        case 'name_asc':
-            $query->orderBy('title', 'asc');
-            break;
-        case 'name_desc':
-            $query->orderBy('title', 'desc');
-            break;
-        default:
-            $query->latest();
-            break;
+            case 'price_asc':
+                $query->join('vinyl_secs', 'vinyl_masters.id', '=', 'vinyl_secs.vinyl_master_id')
+                      ->orderBy('vinyl_secs.price', 'asc')
+                      ->select('vinyl_masters.*');
+                break;
+            case 'price_desc':
+                $query->join('vinyl_secs', 'vinyl_masters.id', '=', 'vinyl_secs.vinyl_master_id')
+                      ->orderBy('vinyl_secs.price', 'desc')
+                      ->select('vinyl_masters.*');
+                break;
+            case 'artist_asc':
+                $query->join('artist_vinyl_master', 'vinyl_masters.id', '=', 'artist_vinyl_master.vinyl_master_id')
+                      ->join('artists', 'artists.id', '=', 'artist_vinyl_master.artist_id')
+                      ->orderBy('artists.name', 'asc')
+                      ->select('vinyl_masters.*')
+                      ->distinct();
+                break;
+            case 'artist_desc':
+                $query->join('artist_vinyl_master', 'vinyl_masters.id', '=', 'artist_vinyl_master.vinyl_master_id')
+                      ->join('artists', 'artists.id', '=', 'artist_vinyl_master.artist_id')
+                      ->orderBy('artists.name', 'desc')
+                      ->select('vinyl_masters.*')
+                      ->distinct();
+                break;
+            case 'name_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            default:
+                $query->latest();
+                break;
+        }
+
+        // Executar a query com paginação
+        $vinyls = $query->paginate(20)->withQueryString();
+
+        return view('site.vinyls.category', compact('vinyls', 'category'));
     }
 
-    // Executar a query com paginação
-    $vinyls = $query->paginate(20)->withQueryString();
+    public function offers(Request $request)
+    {
+        // Query base para produtos em oferta
+        $query = VinylMaster::with(['artists', 'recordLabel', 'vinylSec', 'styles', 'product', 'tracks', 'catStyleShops'])
+            ->whereHas('vinylSec', function ($q) {
+                $q->where('is_promotional', 1)
+                  ->where('promotional_price', '>', 0);
+            });
 
-    return view('site.vinyls.category', compact('vinyls', 'category'));
-}
+        // Apply search independently
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                  ->orWhereHas('artists', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  });
+            });
+        }
 
+        // Apply other filters (specific for offers)
+        $query = $this->applyOffersFilters($query, $request);
 
+        // Apply sorting (specific for offers)
+        $query = $this->applyOffersSorting($query, $request);
+
+        $vinyls = $query->paginate(20)->appends($request->all());
+
+        // Verificar se há discos em oferta
+        $hasOffers = $vinyls->total() > 0;
+
+        // Transform the vinyls to include track information
+        if ($hasOffers) {
+            $vinyls->getCollection()->transform(function ($vinyl) {
+                $vinyl->tracks->transform(function ($track) use ($vinyl) {
+                    $track->artist = $vinyl->artists->pluck('name')->implode(', ');
+                    $track->cover_url = $vinyl->cover_image_url;
+                    return $track;
+                });
+                return $vinyl;
+            });
+        }
+
+        // Obter dados para filtros (mesmos do index)
+        $categories = CatStyleShop::orderBy('nome')->get();
+
+        $recordLabels = DB::table('record_labels')
+            ->whereIn('id', function($query) {
+                $query->select('record_label_id')
+                    ->from('vinyl_masters')
+                    ->whereNotNull('record_label_id')
+                    ->distinct();
+            })
+            ->orderBy('name')
+            ->get();
+
+        $releaseYears = VinylMaster::select('release_year')
+            ->whereNotNull('release_year')
+            ->distinct()
+            ->orderBy('release_year', 'desc')
+            ->pluck('release_year');
+
+        $styles = Style::all();
+
+        // Get min and max prices (incluindo promotional prices)
+        $priceRange = VinylSec::where('is_promotional', 1)
+            ->where('promotional_price', '>', 0)
+            ->selectRaw('MIN(promotional_price) as min_price, MAX(promotional_price) as max_price')
+            ->first();
+
+        return view('site.vinyls.offers', compact(
+            'vinyls',
+            'styles',
+            'priceRange',
+            'categories',
+            'recordLabels',
+            'releaseYears',
+            'hasOffers'
+        ));
+    }
 }

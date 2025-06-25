@@ -13,7 +13,7 @@ use App\Http\Controllers\Site\SearchController;
 use App\Http\Controllers\Site\VinylWebController;
 use App\Http\Controllers\Site\VinylDetailsController;
 use App\Http\Controllers\Site\WishlistController;
-use App\Http\Controllers\Site\ChartDjsController;
+// use App\Http\Controllers\Site\ChartDjsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Site\NavbarController;
 use App\Http\Controllers\Auth\GoogleController;
@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 });
 
-Route::get('/discos/promocoes', [VinylWebController::class, 'promotions'])->name('site.vinyls.promotions');
+Route::get('/discos/ofertas', [VinylWebController::class, 'offers'])->name('site.vinyls.offers');
 
 require __DIR__.'/admin.php';
 require __DIR__.'/notifications.php';
@@ -43,9 +43,11 @@ Route::middleware(['auth', 'verified', 'rolemanager:resale'])->group(function ()
 // Site Routes
 Route::get('/', [HomeController::class, 'index'])->name('site.home');
 Route::get('/discos', [VinylWebController::class, 'index'])->name('site.vinyls.index');
+
+
 Route::get('/busca', [SearchController::class, 'index'])->name('site.search');
-Route::get('/djcharts', [ChartDjsController::class, 'index'])->name('site.djcharts.index');
-Route::get('/djcharts/{dj:slug}', [ChartDjsController::class, 'show'])->name('site.djcharts.show');
+// Route::get('/djcharts', [ChartDjsController::class, 'index'])->name('site.djcharts.index');
+// Route::get('/djcharts/{dj:slug}', [ChartDjsController::class, 'show'])->name('site.djcharts.show');
 Route::get('/equipamentos', [EquipmentController::class, 'index'])->name('site.equipments.index');
 Route::get('/equipamentos/{slug}', [EquipmentController::class, 'show'])->name('site.equipments.show');
 Route::get('/sobre-a-loja', [AboutController::class, 'index'])->name('site.about');

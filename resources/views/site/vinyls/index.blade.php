@@ -1,22 +1,22 @@
-<x-app-layout>
-
+<x-app-layout >
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="mb-6" x-data="{filterModal: false}">
         <!-- Botão para abrir o modal de filtros -->
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold text-gray-800">Todos os discos</h2>
-            
-            <button type="button" 
+
+            <button type="button"
                 @click="filterModal = true"
                 class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center">
-                <i class="fas fa-filter mr-2"></i> Filtrar por propriedades
+                <i class="fas fa-filter mr-2"></i> Filtrar por:
                 <svg class="w-2.5 h-2.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
                 </svg>
             </button>
         </div>
-        
+
         <!-- Backdrop com opacidade -->
-        <div x-show="filterModal" 
+        <div x-show="filterModal"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-50"
@@ -25,9 +25,9 @@
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 bg-black z-40">
         </div>
-        
+
         <!-- Modal de filtros -->
-        <div x-show="filterModal" 
+        <div x-show="filterModal"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 transform scale-90"
             x-transition:enter-end="opacity-100 transform scale-100"
@@ -37,7 +37,7 @@
             @click.away="filterModal = false"
             class="fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full justify-center items-center flex"
             tabindex="-1" aria-hidden="true">
-            
+
             <!-- Modal de filtros - Conteúdo -->
             <div class="relative w-full max-w-2xl max-h-full">
                 <!-- Modal de filtros - Conteúdo interno -->
@@ -54,7 +54,7 @@
                             <span class="sr-only">Fechar modal</span>
                         </button>
                     </div>
-                    
+
                     <!-- Modal de filtros - Corpo -->
                     <form action="{{ route('site.vinyls.index') }}" method="GET" class="p-6 space-y-6">
                         <div class="space-y-4">
@@ -68,7 +68,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+
                             <!-- Filtro 2: Gravadora -->
                             <div class="grid grid-cols-2 gap-4 items-center border-b border-gray-200 pb-4">
                                 <label class="block text-sm font-medium text-gray-900">Gravadora</label>
@@ -79,7 +79,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+
                             <!-- Filtro 3: Ano de Lançamento -->
                             <div class="grid grid-cols-2 gap-4 items-center border-b border-gray-200 pb-4">
                                 <label class="block text-sm font-medium text-gray-900">Ano de Lançamento</label>
@@ -90,7 +90,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+
                             <!-- Filtro 4: Faixa de Preço -->
                             <div class="grid grid-cols-2 gap-4 items-center border-b border-gray-200 pb-4">
                                 <label class="block text-sm font-medium text-gray-900">Faixa de Preço</label>
@@ -100,24 +100,24 @@
                                         <span id="max_price_display" class="text-sm text-gray-700">R$ {{ number_format(request('max_price', $priceRange->max_price), 2, ',', '.') }}</span>
                                     </div>
                                     <div class="mb-2">
-                                        <input type="range" name="min_price" id="min_price" 
-                                            min="{{ $priceRange->min_price }}" 
-                                            max="{{ $priceRange->max_price }}" 
-                                            step="1" 
-                                            value="{{ request('min_price', $priceRange->min_price) }}" 
+                                        <input type="range" name="min_price" id="min_price"
+                                            min="{{ $priceRange->min_price }}"
+                                            max="{{ $priceRange->max_price }}"
+                                            step="1"
+                                            value="{{ request('min_price', $priceRange->min_price) }}"
                                             class="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer">
                                     </div>
                                     <div>
-                                        <input type="range" name="max_price" id="max_price" 
-                                            min="{{ $priceRange->min_price }}" 
-                                            max="{{ $priceRange->max_price }}" 
-                                            step="1" 
-                                            value="{{ request('max_price', $priceRange->max_price) }}" 
+                                        <input type="range" name="max_price" id="max_price"
+                                            min="{{ $priceRange->min_price }}"
+                                            max="{{ $priceRange->max_price }}"
+                                            step="1"
+                                            value="{{ request('max_price', $priceRange->max_price) }}"
                                             class="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer">
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Ordenar por e Direção -->
                             <div class="grid grid-cols-2 gap-4 items-center pb-4">
                                 <div>
@@ -138,7 +138,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Botões de ação -->
                         <div class="flex items-center justify-between border-t border-gray-200 pt-4">
                             <button type="button" @click="filterModal = false" class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">
@@ -158,12 +158,12 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Indicadores de filtros ativos (tags) -->
     @if(request()->hasAny(['category', 'record_label', 'release_year', 'min_price', 'max_price']) && (request('min_price') != $priceRange->min_price || request('max_price') != $priceRange->max_price))
     <div class="flex flex-wrap gap-2 mb-4">
         <span class="text-sm text-gray-700">Filtros ativos:</span>
-        
+
         @if(request('category'))
             @php $categoryName = $categories->where('id', request('category'))->first()->nome ?? ''; @endphp
             <a href="{{ request()->fullUrlWithQuery(['category' => null]) }}" class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center hover:bg-blue-200">
@@ -173,7 +173,7 @@
                 </svg>
             </a>
         @endif
-        
+
         @if(request('record_label'))
             @php $labelName = $recordLabels->where('id', request('record_label'))->first()->name ?? ''; @endphp
             <a href="{{ request()->fullUrlWithQuery(['record_label' => null]) }}" class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center hover:bg-blue-200">
@@ -183,7 +183,7 @@
                 </svg>
             </a>
         @endif
-        
+
         @if(request('release_year'))
             <a href="{{ request()->fullUrlWithQuery(['release_year' => null]) }}" class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center hover:bg-blue-200">
                 Ano: {{ request('release_year') }}
@@ -192,7 +192,7 @@
                 </svg>
             </a>
         @endif
-        
+
         @if(request('min_price') != $priceRange->min_price || request('max_price') != $priceRange->max_price)
             <a href="{{ request()->fullUrlWithQuery(['min_price' => $priceRange->min_price, 'max_price' => $priceRange->max_price]) }}" class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center hover:bg-blue-200">
                 Preço: R${{ number_format(request('min_price', $priceRange->min_price), 2, ',', '.') }} - R${{ number_format(request('max_price', $priceRange->max_price), 2, ',', '.') }}
@@ -201,7 +201,7 @@
                 </svg>
             </a>
         @endif
-        
+
         <a href="{{ route('site.vinyls.index') }}" class="bg-gray-100 text-gray-800 text-xs font-medium px-3 py-1.5 rounded-full flex items-center hover:bg-gray-200">
             Limpar todos
             <svg class="w-2 h-2 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -212,14 +212,13 @@
     @endif
 
     <div class="container mx-auto p-4">
-        <h2 class="font-jersey text-xl sm:text-3xl  text-gray-800 mt-3  ">Todos os discos</h2>
-        <div class="divider mb-3"></div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+        <hr class="my-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
 
             @foreach($vinyls as $vinyl)
                 <x-site.vinyl-card :vinyl="$vinyl" />
             @endforeach
-            
+
             <!-- Paginação -->
             <div class="mt-8">
                 {{ $vinyls->links() }}
@@ -245,7 +244,7 @@
             function ensureValidRange() {
                 const minValue = parseFloat(minPriceInput.value);
                 const maxValue = parseFloat(maxPriceInput.value);
-                
+
                 if (minValue > maxValue) {
                     minPriceInput.value = maxValue;
                     updatePriceDisplay(minPriceInput, minPriceDisplay);
@@ -276,5 +275,5 @@
             }
         });
     </script>
-
+</div>
 </x-app-layout>
